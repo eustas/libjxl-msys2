@@ -19,7 +19,7 @@ jobs:
           mingw-w64-x86_64-clang
           ninja
     - run: |
-      export PATH=/mingw64/bin:$PATH
-      git clone https://github.com/libjxl/libjxl.git --recursive
-      cd libjxl
-      BUILD-DIR=build-opt SKIP_TEST=1 ./ci.sh opt -DJPEGXL_WARNINGS_AS_ERRORS=OFF
+        export PATH=/mingw64/bin:$PATH
+        git clone https://github.com/libjxl/libjxl.git --recursive
+        cd libjxl
+        BUILD-DIR=build-opt SKIP_TEST=1 ./ci.sh opt -DJPEGXL_WARNINGS_AS_ERRORS=OFF

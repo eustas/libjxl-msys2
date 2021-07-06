@@ -1,0 +1,25 @@
+name: Build / run
+on: [push]
+jobs:
+
+  build-test-publish:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          git
+          cmake
+          doxygen
+          mingw-w64-x86_64-libjpeg-turbo
+          mingw-w64-x86_64-clang
+          ninja
+    - run: |
+      export PATH=/mingw64/bin:$PATH
+      git clone https://github.com/libjxl/libjxl.git --recursive
+      cd libjxl
+      BUILD-DIR=build-opt SKIP_TEST=1 ./ci.sh opt -DJPEGXL_WARNINGS_AS_ERRORS=OFF

@@ -18,8 +18,15 @@ jobs:
           mingw-w64-x86_64-libjpeg-turbo
           mingw-w64-x86_64-clang
           ninja
-    - run: |
+
+    - name: Checkout and Build
+      run: |
         export PATH=/mingw64/bin:$PATH
         git clone https://github.com/libjxl/libjxl.git --recursive
         cd libjxl
-        BUILD-DIR=build-opt SKIP_TEST=1 ./ci.sh opt -DJPEGXL_WARNINGS_AS_ERRORS=OFF
+        BUILD_DIR=build-opt SKIP_TEST=1 ./ci.sh opt -DJPEGXL_WARNINGS_AS_ERRORS=OFF
+
+    - name: Run
+      run: |
+        ./build-opt/tools/cjxl -h
+        ./build-opt/tools/djxl -h

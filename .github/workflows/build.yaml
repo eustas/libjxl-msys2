@@ -43,6 +43,7 @@ jobs:
             -DJPEGXL_ENABLE_VIEWERS=OFF \
             -DJPEGXL_STATIC=ON \
             -DJPEGXL_WARNINGS_AS_ERRORS=OFF
+        strip -s build-rel/tools/{cjxl.exe,djxl.exe}
         ARTIFACTS_DIR=`cygpath -u "${RUNNER_TEMP}"/artifacts`
         mkdir -p "${ARTIFACTS_DIR}"
         cp ./build-rel/tools/cjxl.exe "${ARTIFACTS_DIR}"

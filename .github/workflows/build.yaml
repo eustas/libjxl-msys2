@@ -4,29 +4,52 @@ jobs:
 
   build-test-publish:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
+
     steps:
     - uses: msys2/setup-msys2@v2
       with:
         update: true
         install: >-
-          git
           cmake
           doxygen
-          mingw-w64-x86_64-libjpeg-turbo
+          git
           mingw-w64-x86_64-clang
+          mingw-w64-x86_64-giflib
+          mingw-w64-x86_64-libjpeg-turbo
+          mingw-w64-x86_64-libpng
           ninja
 
-    - name: Checkout and Build
-      run: |
-        export PATH=/mingw64/bin:$PATH
-        git clone https://github.com/libjxl/libjxl.git --recursive
-        cd libjxl
-        BUILD_DIR=build-opt SKIP_TEST=1 ./ci.sh opt -DJPEGXL_WARNINGS_AS_ERRORS=OFF
+#          mingw-w64-x86_64-brotli | -DJPEGXL_FORCE_SYSTEM_BROTLI=ON
+#          mingw-w64-x86_64-graphviz
+#          mingw-w64-x86_64-gtest
 
-    - name: Run
+    - name: Checkout and Build
+      shell: msys2 {0}
       run: |
-        ./build-opt/tools/cjxl -h
-        ./build-opt/tools/djxl -h
+        set -x
+        export PATH=/mingw64/bin:$PATH
+        git clone https://github.com/libjxl/libjxl.git --recursive --depth 1 --branch main
+        cd libjxl
+        BUILD_DIR=build-rel SKIP_TEST=1 ./ci.sh release \
+            -DBUILD_TESTING=OFF \
+            -DJPEGXL_ENABLE_BENCHMARK=OFF \
+            -DJPEGXL_ENABLE_DEVTOOLS=OFF \
+            -DJPEGXL_ENABLE_EXAMPLES=OFF \
+            -DJPEGXL_ENABLE_FUZZERS=OFF \
+            -DJPEGXL_ENABLE_MANPAGES=OFF \
+            -DJPEGXL_ENABLE_OPENEXR=OFF \
+            -DJPEGXL_ENABLE_PLUGINS=OFF \
+            -DJPEGXL_ENABLE_TCMALLOC=OFF \
+            -DJPEGXL_ENABLE_VIEWERS=OFF \
+            -DJPEGXL_STATIC=ON \
+            -DJPEGXL_WARNINGS_AS_ERRORS=OFF
+        ARTIFACTS_DIR=`cygpath -u "${RUNNER_TEMP}"/artifacts`
+        mkdir -p "${ARTIFACTS_DIR}"
+        cp ./build-rel/tools/cjxl.exe "${ARTIFACTS_DIR}"
+        cp ./build-rel/tools/djxl.exe "${ARTIFACTS_DIR}"
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: binaries
+        path: ${{ runner.temp }}/artifacts
+        if-no-files-found: error
